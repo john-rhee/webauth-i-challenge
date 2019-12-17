@@ -1,9 +1,6 @@
 
 exports.seed = function(knex) {
   
-  return knex('project').truncate()
-    .then(function () {
-      
       return knex('project').insert([
         {
           project_name: 'Eat', description: 'eat lunch', completed: false
@@ -18,5 +15,5 @@ exports.seed = function(knex) {
           ,task_id: 3,resource_id: 3
         }
       ]);
-    });
+ 
 };

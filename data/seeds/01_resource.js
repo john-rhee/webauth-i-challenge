@@ -1,8 +1,5 @@
 exports.seed = function(knex) {
-  
-  return knex('resource').truncate()
-    .then(function () {
-      
+    
       return knex('resource').insert([
         {
           resource_name: 'school', description: 'Lambda'
@@ -14,5 +11,5 @@ exports.seed = function(knex) {
           resource_name: 'home', description: 'nice room'
         }
       ]);
-    });
+ 
 };

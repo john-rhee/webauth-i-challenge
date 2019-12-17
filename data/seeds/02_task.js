@@ -1,7 +1,4 @@
 exports.seed = function(knex) {
-  
-  return knex('task').truncate()
-    .then(function () {
       
       return knex('task').insert([
         {
@@ -17,5 +14,5 @@ exports.seed = function(knex) {
           , completed: false
         }
       ]);
-    });
+  
 };

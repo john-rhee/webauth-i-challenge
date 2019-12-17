@@ -18,7 +18,7 @@ exports.up = function(knex) {
                 .notNullable()
                 .references("id")
                 .inTable("task")
-                .onDelete("CASCADE") // CASCADE, RESTRICT, DO NOTHING, SET NULL
+                .onDelete("RESTRICT") // CASCADE, RESTRICT, DO NOTHING, SET NULL
                 .onUpdate("CASCADE");
                 
             // 🔑 Foreign Key 🔑
@@ -27,7 +27,7 @@ exports.up = function(knex) {
                 .notNullable()
                 .references("id")
                 .inTable("resource")
-                .onDelete("CASCADE") // CASCADE, RESTRICT, DO NOTHING, SET NULL
+                .onDelete("RESTRICT") // CASCADE, RESTRICT, DO NOTHING, SET NULL
                 .onUpdate("CASCADE");    
     
 
