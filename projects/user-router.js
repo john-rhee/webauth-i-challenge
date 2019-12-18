@@ -4,6 +4,8 @@ const router = require("express").Router();
 
 const Users = require("./user-model.js");
 
+const restricted = require("../restricted-middleware.js");
+
 router.post("/register", (req, res) => {
   let user = req.body;
 
@@ -15,6 +17,7 @@ router.post("/register", (req, res) => {
 
   Users.add(user)
     .then(saved => {
+    req.session.user = saved;
       res.status(201).json(saved);
     })
     .catch(error => {
@@ -23,25 +26,46 @@ router.post("/register", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  let { username, password } = req.body;
+    let { username, password } = req.body;
+  
+    // check that the password
+  
+    Users.findBy({ username })
+      .first()
+      .then(user => {
+        if (user && bcrypt.compareSync(password, user.password)) {
+          req.session.user = user;
+          res.status(200).json({ message: `Welcome ${user.username}, have a cookie!` });
+        } else {
+          res.status(401).json({ message: "Invalid Credentials" });
+        }
+      })
+      .catch(error => {
+        res.status(500).json(error);
+      });
+  });
 
-  // check that the password
+//BEFORE CHANGING TO SESSION//
+// router.post("/login", (req, res) => {
+//   let { username, password } = req.body;
 
-  Users.findBy({ username })
-    .first()
-    .then(user => {
-      if (user && bcrypt.compareSync(password, user.password)) {
-        // in here with .compare()
-        // change the users-model findBy() to return the password as well
-        res.status(200).json({ message: `Welcome ${user.username}!` });
-      } else {
-        res.status(401).json({ message: "Invalid Credentials" });
-      }
-    })
-    .catch(error => {
-      res.status(500).json(error);
-    });
-});
+//   // check that the password
+
+//   Users.findBy({ username })
+//     .first()
+//     .then(user => {
+//       if (user && bcrypt.compareSync(password, user.password)) {
+//         // in here with .compare()
+//         // change the users-model findBy() to return the password as well
+//         res.status(200).json({ message: `Welcome ${user.username}!` });
+//       } else {
+//         res.status(401).json({ message: "Invalid Credentials" });
+//       }
+//     })
+//     .catch(error => {
+//       res.status(500).json(error);
+//     });
+// });
 
 router.get("/",restricted, (req, res) => {
     Users.find()
@@ -53,23 +77,41 @@ router.get("/",restricted, (req, res) => {
     });
   });
 
-function restricted(req,res,next) {
-    let { username, password } = req.headers;
+//BEFORE CHANGING TO SESSION//
+// function restricted(req,res,next) {
+//     let { username, password } = req.headers;
 
-if(username && password) {    
-  Users.findBy({ username })
-    .first()
-    .then(user => {
-      if (user && bcrypt.compareSync(password, user.password)) {
-        next();
-      } else {
-        res.status(401).json({ message: "Invalid Credentials" });
-      }
-    })
-    .catch(err => {
-        res.status(500).json({ message: 'Error' });
+// if(username && password) {    
+//   Users.findBy({ username })
+//     .first()
+//     .then(user => {
+//       if (user && bcrypt.compareSync(password, user.password)) {
+//         next();
+//       } else {
+//         res.status(401).json({ message: "Invalid Credentials" });
+//       }
+//     })
+//     .catch(err => {
+//         res.status(500).json({ message: 'Error' });
+//       });
+//  } else { res.status(400).json({ message: 'Provide username and password' });}    
+// }  
+
+router.get("/logout", (req, res) => {
+    if (req.session) {
+      req.session.destroy(error => {
+        if (error) {
+          res.status(500).json({
+            message:
+              "you can checkout any time you like, but you can never leave!!!!!",
+          });
+        } else {
+          res.status(200).json({ message: "logged out" });
+        }
       });
- } else { res.status(400).json({ message: 'Provide username and password' });}    
-}  
+    } else {
+      res.status(200).end();
+    }
+  });
 
 module.exports = router;
